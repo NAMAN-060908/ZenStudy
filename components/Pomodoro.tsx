@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { AppSettings, StudyLog, UserStats } from '../types';
-import { SUBJECTS } from '../constants';
 
 interface PomodoroProps {
   settings: AppSettings;
@@ -17,9 +16,8 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, setLogs, setStats }) => {
   const [timeLeft, setTimeLeft] = useState(settings.pomodoroWork * 60);
   const [isActive, setIsActive] = useState(false);
   const [sessionsCompleted, setSessionsCompleted] = useState(0);
-  const [selectedSubject, setSelectedSubject] = useState(SUBJECTS[0]);
+  const [selectedSubject, setSelectedSubject] = useState(settings.subjects[0] || 'Uncategorized');
   
-  // Fix: Use ReturnType<typeof setInterval> instead of NodeJS.Timeout to avoid namespace errors in browser environment
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -57,7 +55,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, setLogs, setStats }) => {
     setIsActive(false);
     if (timerRef.current) clearInterval(timerRef.current);
     
-    // Notification logic
     try {
       if ('vibrate' in navigator) navigator.vibrate(200);
       new Audio('https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3').play();
@@ -67,7 +64,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, setLogs, setStats }) => {
       const newSessionCount = sessionsCompleted + 1;
       setSessionsCompleted(newSessionCount);
       
-      // Log session
       const log: StudyLog = {
         date: new Date().toISOString().split('T')[0],
         subject: selectedSubject,
@@ -79,7 +75,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, setLogs, setStats }) => {
         totalStudyMinutes: prev.totalStudyMinutes + settings.pomodoroWork
       }));
 
-      // Auto suggest break
       if (newSessionCount % 4 === 0) {
         setMode('longBreak');
       } else {
@@ -101,110 +96,99 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, setLogs, setStats }) => {
                    1 - timeLeft / (settings.pomodoroLongBreak * 60);
 
   return (
-    <div className="flex flex-col items-center max-w-2xl mx-auto space-y-12 py-8">
-      <header className="text-center space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Focus Timer</h2>
-        <p className="text-slate-500 dark:text-slate-400">Maximize your study sessions using the Pomodoro technique</p>
+    <div className="flex flex-col items-center max-w-2xl mx-auto space-y-8 md:space-y-12 py-4 md:py-8">
+      <header className="text-center space-y-1">
+        <h2 className="text-3xl md:text-4xl font-black tracking-tight uppercase">Deep Focus</h2>
+        <p className="text-xs md:text-base text-slate-500 font-bold tracking-widest">RANKUP PERFORMANCE CORE</p>
       </header>
 
-      {/* Mode Toggles */}
-      <div className="flex bg-slate-100 dark:bg-slate-900 p-1.5 rounded-2xl w-full">
+      <div className="flex bg-slate-100 dark:bg-slate-900 p-1.5 rounded-2xl w-full border border-slate-200 dark:border-slate-800">
         {(['work', 'shortBreak', 'longBreak'] as Mode[]).map((m) => (
           <button
             key={m}
             onClick={() => setMode(m)}
-            className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
+            className={`flex-1 py-3 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all ${
               mode === m 
-              ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm' 
-              : 'text-slate-500'
+              ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-md' 
+              : 'text-slate-400'
             }`}
           >
-            {m === 'work' ? 'Focus' : m === 'shortBreak' ? 'Short Break' : 'Long Break'}
+            {m === 'work' ? 'Execute' : m === 'shortBreak' ? 'Recovery' : 'Deep Rest'}
           </button>
         ))}
       </div>
 
-      {/* Circle Timer */}
-      <div className="relative w-72 h-72 md:w-80 md:h-80 flex items-center justify-center">
+      <div className="relative w-64 h-64 md:w-96 md:h-96 flex items-center justify-center">
         <svg className="w-full h-full transform -rotate-90">
           <circle
             cx="50%"
             cy="50%"
-            r="45%"
+            r="42%"
             stroke="currentColor"
-            strokeWidth="4"
+            strokeWidth="8"
             fill="transparent"
             className="text-slate-100 dark:text-slate-900"
           />
           <circle
             cx="50%"
             cy="50%"
-            r="45%"
+            r="42%"
             stroke="currentColor"
-            strokeWidth="4"
+            strokeWidth="8"
             fill="transparent"
-            strokeDasharray="283"
-            strokeDashoffset={283 * (1 - progress)}
+            strokeDasharray="264"
+            strokeDashoffset={264 * (1 - progress)}
             strokeLinecap="round"
             className={`transition-all duration-1000 ease-linear ${
-              mode === 'work' ? 'text-indigo-600' : 'text-green-500'
+              mode === 'work' ? 'text-indigo-600' : 'text-emerald-500'
             }`}
-            style={{ strokeDasharray: '282.7', strokeDashoffset: 282.7 * (1 - progress) }}
+            style={{ strokeDasharray: '263.8', strokeDashoffset: 263.8 * (1 - progress) }}
           />
         </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center space-y-1">
-          <span className="text-7xl font-black tabular-nums tracking-tighter">
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-7xl md:text-8xl font-black tabular-nums tracking-tighter">
             {formatTime(timeLeft)}
           </span>
-          <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">
-            {mode === 'work' ? 'Time to focus' : 'Rest period'}
+          <span className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-[0.3em] mt-2">
+            {mode === 'work' ? 'Flowing' : 'Resetting'}
           </span>
         </div>
       </div>
 
-      <div className="flex items-center gap-6 w-full">
+      <div className="flex items-center gap-4 md:gap-6 w-full px-4">
         <button 
           onClick={resetTimer}
-          className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 py-4 rounded-2xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all text-slate-600 dark:text-slate-400"
+          className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all"
         >
-          Reset
+          Abort
         </button>
         <button 
           onClick={toggleTimer}
-          className={`flex-[2] py-4 rounded-2xl font-black text-lg shadow-xl transition-all active:scale-95 ${
-            isActive 
-            ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' 
-            : 'bg-indigo-600 text-white shadow-indigo-500/30'
+          className={`flex-[2] py-4 rounded-2xl font-black text-sm md:text-xl shadow-2xl transition-all uppercase tracking-widest active:scale-95 ${
+            isActive ? 'bg-slate-900 text-white shadow-slate-950/20' : 'bg-indigo-600 text-white shadow-indigo-500/40'
           }`}
         >
-          {isActive ? 'PAUSE' : 'START'}
+          {isActive ? 'Pause Flow' : 'Begin Flow'}
         </button>
       </div>
 
       {mode === 'work' && (
-        <div className="w-full bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="w-full bg-white dark:bg-slate-900 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="font-bold flex items-center gap-2">
-              <i className="fa-solid fa-graduation-cap text-indigo-500"></i>
-              Currently Studying
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+              <i className="fa-solid fa-crosshairs text-indigo-500"></i>
+              Target Category
             </h4>
-            <span className="text-xs font-bold text-slate-400">SESSION #{sessionsCompleted + 1}</span>
           </div>
           <select 
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
             disabled={isActive}
-            className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl p-4 font-bold focus:ring-2 focus:ring-indigo-500 transition-all appearance-none disabled:opacity-50"
+            className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl p-4 text-sm font-black appearance-none focus:ring-2 focus:ring-indigo-500"
           >
-            {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+            {settings.subjects.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
-      )}
-
-      {sessionsCompleted > 0 && (
-        <p className="text-slate-400 text-sm font-medium animate-bounce">
-          🎉 Great job! You've completed {sessionsCompleted} sessions today.
-        </p>
       )}
     </div>
   );

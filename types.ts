@@ -24,13 +24,24 @@ export interface StudyLog {
   minutes: number;
 }
 
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  unlockedAt: string | null;
+  color: string;
+  category: 'habit' | 'task' | 'study' | 'subject' | 'timer';
+}
+
 export interface UserStats {
   streak: number;
   lastActiveDate: string | null;
   totalStudyMinutes: number;
+  badges: string[]; // List of badge IDs unlocked
 }
 
-export type View = 'dashboard' | 'planner' | 'exams' | 'timer' | 'stats' | 'settings';
+export type View = 'dashboard' | 'planner' | 'exams' | 'timer' | 'stats' | 'settings' | 'image-gen' | 'badges';
 
 export interface AppSettings {
   theme: 'light' | 'dark';
@@ -38,4 +49,5 @@ export interface AppSettings {
   pomodoroShortBreak: number;
   pomodoroLongBreak: number;
   language: 'English' | 'Hindi';
+  subjects: string[];
 }

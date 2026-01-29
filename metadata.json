@@ -1,5 +1,7 @@
 {
-  "name": "ZenStudy: Ultimate Exam Planner",
-  "description": "A comprehensive productivity app for students featuring task management, exam countdowns, Pomodoro timer, and study statistics.",
-  "requestFramePermissions": []
+  "name": "RankUp: AI Performance Suite",
+  "description": "A high-stakes productivity and JEE prep suite with 108 milestone badges, 4K AI image generation, and deep focus tracking.",
+  "requestFramePermissions": [
+    "camera"
+  ]
 }
